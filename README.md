@@ -2,6 +2,8 @@
 
 Welcome! This is a time tracker app to help you manage your time sheets.
 
+The starting code of this app comes from a personal project.
+
 Hope it's helpful.
 
 # dev
