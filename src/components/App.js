@@ -15,8 +15,8 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-const setWindowTitle = () => {
-  // document.title = ''
+const setWindowTitle = (title) => {
+  document.title = `Shiftex - ${title}`
 }
 
 class App extends Component {
@@ -36,14 +36,6 @@ class App extends Component {
     this.props.dispatch({type: "STORE_SHIFT_DAY", day: start})
     this.getShifts(start)
 
-    apiRequestHandler(
-      'get',
-      'settings',
-      {},
-      this.props.session,
-      this.storeSettings,
-    )
-
   }
 
   setUrl = () => {
@@ -59,10 +51,6 @@ class App extends Component {
       }
       
     }
-  }
-
-  storeSettings = (response) => {
-    this.props.dispatch({ type: 'STORE_SETTINGS', settings: {...response.settings} })
   }
 
   getShifts = (date) => {
@@ -96,22 +84,19 @@ class App extends Component {
     } = this
     const {
       timetracking,
-    } = this.props || {}
+    } = this.props
     let { day, dailyTotals } = timetracking
     const mainHeader = `${moment(day, 'YYYY-MM-DD').format('dddd, MMMM D')}`
-    setWindowTitle()
+    setWindowTitle(mainHeader)
     return (
       <View>
-        <View>
-          <View/>
-          <View>
+        <View className='total'>
             <Text>Total: {dailyTotals ? moment.utc(moment.duration(dailyTotals.map(dailyTotal => dailyTotal.total).reduce((sum, value) => sum + value)) * 60 * 1000).format('HH:mm') : '00:00'} | </Text>
             <Link onClick={this.setToToday}>Today</Link>
-          </View>
-        </View>        
+          </View>   
         <ShiftNav getShifts={getShifts} />
         <SectionHeader>{mainHeader}</SectionHeader>
-        <View>{dailyTotals ? moment.utc(dailyTotals.filter(dailyTotal => dailyTotal.day === moment(day).format('YYYY-MM-DD'))[0].total * 60 * 1000).format('HH:mm') : '00:00'}</View>
+        <View className='dailyTotal'>{dailyTotals ? moment.utc((dailyTotals.filter(dailyTotal => dailyTotal.day === (moment(day).format('YYYY-MM-DD') || [0]))[0] || {}).total * 60 * 1000).format('HH:mm') : '00:00'}</View>
         <ShiftsTable />
       </View>
     )  

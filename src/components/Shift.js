@@ -202,12 +202,11 @@ class ShiftComponent extends Component {
   }
 
   render () {
-    const { shift, environment, settings, timetracking } = this.props || {}
-    const { styles, viewport } = environment || {}
-    const { mobile } = viewport
-    const { shiftTypes } = settings || {}
+    const { shift, timetracking } = this.props
+    const mobile = false
+    const shiftTypes = []
     const { day } = timetracking || {}
-    const { shiftTypeId, start, end } = shift || {}
+    const { shiftTypeId, start, end } = shift
     const { updatedStart, updatedEnd, ongoingEnd, startShift } = this.state || {}
     const {
       updateShift,
@@ -221,7 +220,7 @@ class ShiftComponent extends Component {
     } = this || {}
     const today = moment().startOf('day').format('YYYY-MM-DD')
     return (
-      <View style={styles.shiftGrid}>
+      <View className='shiftGrid'>
         <View>
           <FormGroup
             name='shiftTypeName'
@@ -248,20 +247,20 @@ class ShiftComponent extends Component {
               onPressEnter={updateShift}
             />
         </View>
-        <View style={mobile ? styles.standardMargin : null}>
+        <View>
           {calcDiff(updatedEnd || end || ongoingEnd)}
         </View>
         <View>
-          <RunningTimer styles={styles} start={(hasStarted() && hasNotEnded()) || startShift} />
+          <RunningTimer start={(hasStarted() && hasNotEnded()) || startShift} />
         </View>
         <View hidden={(hasEnded() || hasNotStarted()) && !startShift}>
-          <Button onClick={updateShift} style={{width: '100%'}}>Stop</Button>
+          <Button onClick={updateShift} className='stop'>Stop</Button>
         </View>
         <View hidden={(hasStarted() && hasNotEnded()) || startShift}>
-          <Button hidden={!moment(today).isSame(moment(day).format('YYYY-MM-DD'))} onClick={resumeShift} style={{width: '100%'}}>Start</Button>
+          <Button hidden={!moment(today).isSame(moment(day).format('YYYY-MM-DD'))} onClick={resumeShift} className='start'>Start</Button>
         </View>
         <View>
-          <Button onClick={deleteShift} style={{width: '100%'}}>Delete</Button>
+          <Button onClick={deleteShift} className='delete'>Delete</Button>
         </View>
       </View>
     )
@@ -272,10 +271,10 @@ export default connect(mapStateToProps)(ShiftComponent)
 
 class RunningTimer extends Component {
   render () {
-    const { styles, start } = this.props || {}
+    const { start } = this.props
     return (
-      <View style={styles.timerContainer}>
-        <View style={{...styles.timer, animation: start ? 'fullRotation 5s linear infinite' : null}}/>
+      <View className='timerContainer'>
+        <View className='timer' style={{animation: start && 'fullRotation 5s linear infinite'}}/>
       </View>
     )
   }
