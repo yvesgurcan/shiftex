@@ -57,7 +57,6 @@ export default class Textbox extends Component {
   }
 
   render () {
-    const { styles } = this.props.environment
     const {
       name,
       type,
@@ -91,10 +90,6 @@ export default class Textbox extends Component {
       interceptedValue = Math.max(min, interceptedValue)
     }
 
-    if (readOnly) {
-      return <View style={{...styles.readOnlyField, ...style}} >{value}</View>
-    }
-
     return (
       <input
         name={name}
@@ -107,7 +102,7 @@ export default class Textbox extends Component {
         step={interceptedStep}
         pattern={pattern}
         maxLength={maxLength}
-        style={{...styles.textbox, ...style}}
+        style={style}
         onChange={this.onChange}
         onBlur={this.onBlur}
         onKeyPress={this.onKeyPress}/>
