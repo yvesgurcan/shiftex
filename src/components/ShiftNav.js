@@ -32,9 +32,9 @@ class ScheduleWeekNav extends Component {
   }
 
   switchToDay = (weekdayNumber) => {
-    const { day } = this.props.timetracking || {}
-    const { getShifts, excludeWeekend } = this.props || {}
-    let newDay = moment(day).startOf('week').add(1, 'day').add(weekdayNumber,'day')
+    const { day } = this.props.timetracking
+    const { getShifts } = this.props
+    const newDay = moment(day).startOf('week').add(1, 'day').add(weekdayNumber, 'day')
 
     this.props.dispatch({type: "STORE_SHIFT_DAY", day: moment(newDay).format('YYYY-MM-DD')})
     getShifts(newDay)
@@ -46,11 +46,14 @@ class ScheduleWeekNav extends Component {
 
   }
 
-  switchToDayMobile = (weekdayNumber) => {
-    const { day } = this.props.timetracking || {}
-    const { getShifts, excludeWeekend } = this.props || {}
-    let newDay = moment(day).startOf('week').add(weekdayNumber === '6' ? '8' : weekdayNumber,'day')
-    newDay = excludeWeekend(newDay)
+  switchToDayMobile = (weekdayNumber, operation) => {
+    const { day } = this.props.timetracking
+    const { getShifts } = this.props
+    console.log(weekdayNumber)
+    let newDay = moment(day).add(
+      operation === 'add' && weekdayNumber === '6' ? '-1'
+      : operation === 'remove' && weekdayNumber === '0' ? '1'
+      : '0', 'day').startOf('week').add(weekdayNumber, 'day')
 
     this.props.dispatch({type: "STORE_SHIFT_DAY", day: moment(newDay).format('YYYY-MM-DD')})
     getShifts(newDay)
@@ -62,8 +65,9 @@ class ScheduleWeekNav extends Component {
   }
 
   weekdaysToArray = () => {
-    const { day } = this.props.timetracking || {}
-    const weekStart = moment(day).startOf('week').add(1, 'day')
+    const { day } = this.props.timetracking
+    // FIXME
+    const weekStart = moment(day).add((moment(day).format('d') === '0' ? '-1' : '0'), 'day').startOf('week').add(1, 'day')
     let weekdays = []
     for (let i = 0; i < 7; i++) {
       weekdays.push(moment(weekStart).add(i, 'days').format('YYYY-MM-DD'))
@@ -73,24 +77,22 @@ class ScheduleWeekNav extends Component {
   }
 
   render () {
-    // const { styles, viewport } = this.props.environment || {}
-    // const { mobile, tablet } = viewport
-    const styles = {}
-    const mobile = false
-    const tablet = false
     const { day, dailyTotals } = this.props.timetracking || {}
-    const { getPreviousWeek, getNextWeek, switchToDay, switchToDayMobile } = this || {}
-    const { excludeWeekend } = this.props;
-    const shiftDateFormat = tablet ? 'ddd' : 'dddd'
+    const { getPreviousWeek, getNextWeek, switchToDay, switchToDayMobile } = this
+    const shiftDateFormat = 'dddd'
     const weekdays = this.weekdaysToArray()
+    const mobile = false
     return (
-      <View style={styles.shiftNavGrid}>
-        <View style={styles.alignLeft}>
-          <Link onClick={mobile ? () => switchToDayMobile(moment(day).subtract(1, 'day').format('d')) : getPreviousWeek}>
+      <View className='shiftNav'>
+        <View>
+          <Link className='desktop' onClick={getPreviousWeek}>
+          &lt;
+          </Link>
+          <Link className='mobile' onClick={() => switchToDayMobile(moment(day).subtract(1, 'day').format('d'), 'add')}>
           &lt;
           </Link>
         </View>
-        {!mobile && weekdays.map(weekday => {
+        {weekdays.map(weekday => {
             const matchTotal = (dailyTotals || []).filter(total => moment(total.day).isSame(moment(weekday), 'day'))
             let duration = '0:00'
             let ongoing = false
@@ -99,17 +101,20 @@ class ScheduleWeekNav extends Component {
               ongoing = matchTotal[0].ongoing
             }
             return (
-              <View key={weekday} style={moment(weekday).isSame(moment(day)) ? styles.selectedDay : null}>
+              <View key={weekday} className={'desktop ' + (moment(weekday).isSame(moment(day)) ? 'selectedDay' : '')}>
               <Link onClick={() => switchToDay(moment(weekday).subtract(1, 'day').format('d')) }>
                 {moment(weekday).format(shiftDateFormat)}
               </Link>
-              <View style={ongoing ? styles.selectedDayTime : null}>{duration}</View>
+              <View className={ongoing ? 'ongoingTotal' : null}>{duration}</View>
             </View> 
             )
           })
         } 
-        <View style={styles.alignRight}>
-          <Link onClick={mobile ? () => switchToDayMobile(moment(day).add(1, 'day').format('d')) : getNextWeek}>
+        <View>
+          <Link className='desktop' onClick={getNextWeek}>
+          &gt; 
+          </Link>
+          <Link className='mobile' onClick={() => switchToDayMobile(moment(day).add(1, 'day').format('d'), 'remove')}>
           &gt; 
           </Link>
         </View>
