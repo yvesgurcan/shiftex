@@ -15,8 +15,8 @@ export default () => (
   <Provider store={store}>
     <Router>
       <Switch>
-        <Route path='/' component={App} />
         <Route path='/:year(2[0-9][0-9]{2})/:month([1-9]|0[1-9]|1[0-2])/:day([1-9]|0[1-9]|[1-2][0-9]|3[0-1])' component={App} />
+        <Route path='/' component={App} />
       </Switch>
     </Router>
   </Provider>
