@@ -1,0 +1,120 @@
+.total {
+  text-align: right;
+}
+
+.shiftNav {
+  display: grid;
+  grid-template-columns: 20px repeat(7, 85px) 20px;
+  justify-content: center;
+}
+
+.selectedDay {
+  font-weight: bold;
+}
+
+.ongoingTotal {
+  font-style: italic;
+}
+
+a {
+  color: steelblue;
+  cursor: pointer;
+  user-select: none;
+}
+
+a:hover {
+  color: rgb(44, 67, 136);
+}
+
+a:active {
+  color: darkblue;
+}
+
+.dailyTotal {
+  margin-top: -20px;
+}
+
+.shiftGrid {
+  display: grid;
+  grid-template-columns:
+    auto
+    85px
+    85px
+    40px
+    50px
+    70px
+    70px;
+  grid-column-gap: 10px;
+  margin-bottom: 5px;
+  align-items: center;
+}
+
+input, select {
+  border: none;
+}
+
+.timerContainer {
+  height: 25px;
+  width: 25px;
+  border: 2px solid gray;
+  border-radius: 50%;
+}
+
+.timer {
+  height: 50%;
+  width: 2px;
+  background: gray;
+  text-align: center;
+  margin: auto;
+  transform-origin: bottom center;
+}
+
+@keyframes fullRotation {
+  0% {
+    transform: rotate(360deg)
+  }
+}
+
+button {
+  width: 100%;
+}
+
+.start, .stop {
+  background: steelblue;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 5px;
+}
+
+.delete {
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 5px;
+}
+
+.desktop {
+  display: block;
+}
+
+.mobile {
+  display: none;
+}
+
+@media screen and (max-width: 650px) {
+  .desktop {
+    display: none;
+  }
+
+  .mobile {
+    display: block;
+  }
+
+  .shiftNav {
+    display: flex;
+    justify-content: space-between;
+  }
+
+}
