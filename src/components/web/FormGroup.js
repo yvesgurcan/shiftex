@@ -8,26 +8,20 @@ import Dropdown from './Dropdown'
 
 class FormGroup extends Component {
   render () {
+    const { props } = this
     const {
       label,
       checkbox,
       options,
-      style,
-    } = this.props || {}
+    } = props
     return (
     <View>
       {checkbox || !label ? null : <Label>{label}</Label>}
       <View>
         {
-          options
-          ?
-            <Dropdown {...this.props} style={{...style, width: "100%"}} />
-          :
-          checkbox
-          ?
-            <Checkbox {...this.props}>{label || ''}</Checkbox>
-          :
-            <Textbox {...this.props} style={{...style, width: "100%"}} />
+          options ? <Dropdown {...props} /> :
+          checkbox ? <Checkbox {...props}>{label || ''}</Checkbox> :
+          <Textbox {...props} />
         }
       </View>
     </View>

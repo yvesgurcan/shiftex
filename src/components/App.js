@@ -57,7 +57,6 @@ class App extends Component {
       'get',
       'shifts',
       { day },
-      this.props.session,
       this.storeShifts
     )
   }

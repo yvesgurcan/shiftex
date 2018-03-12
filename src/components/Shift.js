@@ -12,18 +12,14 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-const transformArrayIntoOptions = function (list, keys) {
-  return (list || []).filter(item => item).map(item => ({value: item[keys.value], label: item[keys.label], object: item}))
-}
-
 class ShiftComponent extends Component {
   state = {}
   componentDidMount = () => {
     this.mounted = true
-    const { shift } = this.props || {}
+    const { shift, timetracking } = this.props
     const { end } = shift || {}
     if (!end) {
-      const { day } = this.props.timetracking || {}
+      const { day } = timetracking || {}
       if (moment(day).isSame(moment(), 'day')) {
         this.setState({ ongoingEnd: moment() })
         const millisecondsToNextMinute = moment.duration(moment().endOf('minute').diff(moment())).asMilliseconds()
@@ -95,6 +91,7 @@ class ShiftComponent extends Component {
     else {
       newValue = moment(`${formattedDay} ${value}`, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD HH:mm')
     }
+
     state[name] = newValue
     this.setState(state, () => {
       const { updatedEnd } = this.state || {}
@@ -118,15 +115,13 @@ class ShiftComponent extends Component {
         'put',
         'shifts',
         { updateShift },
-        this.props.session,
       )
     })
-
 
   }
 
   resumeShift = () => {
-    const { updateShift, state } = this || {}
+    const { updateShift, state } = this
     const { shift } = this.props || {}
     const { start } = shift || {}
     const { updatedStart } = state || {}
@@ -150,12 +145,8 @@ class ShiftComponent extends Component {
       'delete',
       'shifts',
       { deleteShift: {shiftId: shift.shiftId} },
-      this.props.session,
       this.props.handleDeleteShiftResponse
     )
-  }
-
-  handleDeleteShiftResponse = () => {
   }
 
   componentWillUnmount = () => {
@@ -191,11 +182,19 @@ class ShiftComponent extends Component {
   }
 
   render () {
-    const { shift, timetracking } = this.props
-    const shiftTypes = []
-    const { day } = timetracking || {}
-    const { shiftTypeId, start, end } = shift
-    const  {
+    const {
+      shift,
+      timetracking,
+    } = this.props
+    const {
+      day
+    } = timetracking || {}
+    const {
+      role,
+      start,
+      end,
+    } = shift
+    const {
       updatedStart,
       updatedEnd,
       ongoingEnd,
@@ -214,47 +213,50 @@ class ShiftComponent extends Component {
     const today = moment().startOf('day').format('YYYY-MM-DD')
     return (
       <View className='shiftGrid'>
-        <View>
-          <FormGroup
-            name='shiftTypeName'
-            value={shiftTypeId}
-            options={transformArrayIntoOptions(shiftTypes, {value: 'shiftTypeId', label: 'shiftTypeName'})}
-            onChange={updateShift}
-          />
-        </View>
-        <View>
-          <FormGroup
-            name='updatedStart'
+        <FormGroup
+          name='client'
+          placeholder='Enter client name'
+          value={role}
+          onChange={updateShift}
+          onPressEnter={updateShift}
+        />
+        <FormGroup
+          name='project'
+          placeholder='Enter project'
+          value={role}
+          onChange={updateShift}
+          onPressEnter={updateShift}
+        />
+        <FormGroup
+          name='role'
+          placeholder='Enter your role'
+          value={role}
+          onChange={updateShift}
+          onPressEnter={updateShift}
+        />
+        <FormGroup
+          name='updatedStart'
+          type='time'
+          value={updatedStart && moment(updatedStart).isValid() ? moment(updatedStart).format('HH:mm') : start ? moment(start).format('HH:mm') : undefined}
+          onChange={updateShift}
+          onPressEnter={updateShift}
+        />
+        <FormGroup
+            name='updatedEnd'
             type='time'
-            value={updatedStart && moment(updatedStart).isValid() ? moment(updatedStart).format('HH:mm') : start ? moment(start).format('HH:mm') : undefined}
+            value={updatedEnd === null ? undefined : updatedEnd && moment(updatedEnd).isValid() ? moment(updatedEnd).format('HH:mm') : end ? moment(end).format('HH:mm') : undefined}
             onChange={updateShift}
             onPressEnter={updateShift}
           />
-        </View>
-        <View>
-          <FormGroup
-              name='updatedEnd'
-              type='time'
-              value={updatedEnd === null ? undefined : updatedEnd && moment(updatedEnd).isValid() ? moment(updatedEnd).format('HH:mm') : end ? moment(end).format('HH:mm') : undefined}
-              onChange={updateShift}
-              onPressEnter={updateShift}
-            />
-        </View>
         <View>
           {calcDiff(updatedEnd || end || ongoingEnd)}
         </View>
-        <View>
-          <RunningTimer start={(hasStarted() && hasNotEnded()) || startShift} />
-        </View>
-        <View hidden={(hasEnded() || hasNotStarted()) && !startShift}>
-          <Button onClick={updateShift} className='stop'>Stop</Button>
-        </View>
+        <RunningTimer start={(hasStarted() && hasNotEnded()) || startShift} />
+        <Button hidden={(hasEnded() || hasNotStarted()) && !startShift} onClick={updateShift} className='stop'>Stop</Button>
         <View hidden={(hasStarted() && hasNotEnded()) || startShift}>
           <Button hidden={!moment(today).isSame(moment(day).format('YYYY-MM-DD'))} onClick={resumeShift} className='start'>Start</Button>
         </View>
-        <View>
-          <Button onClick={deleteShift} className='delete'>Delete</Button>
-        </View>
+        <Button onClick={deleteShift} className='delete'>Delete</Button>
       </View>
     )
   }

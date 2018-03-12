@@ -16,7 +16,6 @@ class ShiftsTableComponent extends Component {
   addShift = () => {
     const { getNewShiftTime } = this
     const { day } = this.props.timetracking || {}
-    const { scheduleStart, scheduleEnd } = this.props.settings || {}
     const tempShiftId = 'newShift' + Math.random()
     const start = getNewShiftTime()
     const end = getNewShiftTime(true)
@@ -30,7 +29,6 @@ class ShiftsTableComponent extends Component {
       'post',
       'shifts',
       { day, start, end },
-      this.props.session,
       (response) => this.updateNewShiftId(response, tempShiftId)
     )
   }

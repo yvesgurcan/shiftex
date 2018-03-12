@@ -3,33 +3,27 @@ import PropTypes from 'prop-types'
 
 export default class Checkbox extends Component {
   onChange = (input) => {
-    const {id} = this.props || {}
-    const {checked, name} = input.target
-    const value = checked
-    this.props.onChange({id, name, checked, value, input: "checkbox"})
+    const { id, onChange } = this.props
+    const { checked, name } = input.target
+    onChange({id, name, checked, value: checked, input: "checkbox"})
   }
+
   render () {
-    const {styles} = this.props.environment
     const {
       name,
       id,
-      disabled,
-      value,
-      checked,
+      value=false,
+      checked=false,
       style,
     } = this.props
+
     return (
       <span>
-        <input name={name} id={id || name} type={"checkbox"} checked={value || checked} disabled={disabled} style={{...(value || checked ? styles.checkboxChecked : styles.checkbox), ...style}} onChange={this.onChange}/>
+        <input name={name} id={id || name} type="checkbox" checked={value || checked} style={style} onChange={this.onChange}/>
         <label htmlFor={id || name}>{this.props.children}</label>
       </span>
     )  
   }
-}
-
-Checkbox.defaultProps = {
-  value: false,
-  checked: false,
 }
 
 Checkbox.propTypes = {
