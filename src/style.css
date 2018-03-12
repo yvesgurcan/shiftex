@@ -8,6 +8,10 @@
   justify-content: center;
 }
 
+.shiftNav div {
+  justify-self: center;
+}
+
 .selectedDay {
   font-weight: bold;
 }
