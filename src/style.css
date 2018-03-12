@@ -117,4 +117,9 @@ button {
     justify-content: space-between;
   }
 
+  .shiftGrid {
+    grid-template-columns: 100%;
+    grid-row-gap: 3px;
+  }
+
 }
