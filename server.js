@@ -175,8 +175,6 @@ endpointWrapper(
 
     const newShift = {
       shiftId,
-      clientId: parameters.user.clientId,
-      userId: parameters.user.userId,
       day: parameters.day,
       start: parameters.start,
       end: parameters.end,
@@ -197,7 +195,7 @@ endpointWrapper(
   (req, res, parameters) => {
 
    // get shift
-    const shift = global.shifts.filter(shift => !shift.deleted && shift.clientId === parameters.user.clientId && shift.shiftId === parameters.updateShift.shiftId)
+    const shift = global.shifts.filter(shift => !shift.deleted && shift.shiftId === parameters.updateShift.shiftId)
 
     if (shift.length === 0) {
     return { feedback: { status: 'error', message: 'The shift could not be found.' } }

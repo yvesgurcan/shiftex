@@ -18,8 +18,8 @@ class ShiftsTableComponent extends Component {
     const { day } = this.props.timetracking || {}
     const { scheduleStart, scheduleEnd } = this.props.settings || {}
     const tempShiftId = 'newShift' + Math.random()
-    const start = getNewShiftTime(scheduleStart)
-    const end = getNewShiftTime(scheduleEnd, true)
+    const start = getNewShiftTime()
+    const end = getNewShiftTime(true)
     this.props.dispatch({
       type: 'ADD_SHIFT',
       tempShiftId,
@@ -35,30 +35,24 @@ class ShiftsTableComponent extends Component {
     )
   }
 
-  getNewShiftTime = (referenceTime, openEnded) => {
+  getNewShiftTime = (openEnded) => {
     const { day } = this.props.timetracking || {}
 
-    if (moment(day, 'YYYY-MM-DD').isSame(moment(), 'day')) {
-      if (openEnded) {
-        return undefined
-      }
-      else {
-        const date = (
-          moment(`
-          ${moment(day).format('YYYY')}-
-            ${moment(day).format('MM')}-
-            ${moment(day).format('DD')} 
-            ${moment().format('HH')}:
-            ${moment().format('mm')}
-            `, 'YYYY-MM-DD HH:mm')
-            .format('YYYY-MM-DD HH:mm')
-        )
-        return date
-      }
-      
+    if (openEnded) {
+      return undefined
     }
     else {
-      return `${day} ${referenceTime}`
+      const date = (
+        moment(`
+        ${moment(day).format('YYYY')}-
+          ${moment(day).format('MM')}-
+          ${moment(day).format('DD')} 
+          ${moment().format('HH')}:
+          ${moment().format('mm')}
+          `, 'YYYY-MM-DD HH:mm')
+          .format('YYYY-MM-DD HH:mm')
+      )
+      return date
     }
     
   }

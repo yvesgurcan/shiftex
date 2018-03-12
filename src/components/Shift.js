@@ -84,18 +84,7 @@ class ShiftComponent extends Component {
     if (!value && !resume) {
       this.setState({startShift: false })
       name = 'updatedEnd'
-      if (moment().isAfter(moment(day).endOf('day'))) {
-        const { scheduleEnd } = this.props.settings || {}
-        if (scheduleEnd) {
-          value = scheduleEnd
-        }
-        else {
-          value = '23:59'
-        }
-      }
-      else {
-        value = moment().format('HH:mm')
-      }
+      value = moment().format('HH:mm')
     }
     
 
@@ -206,7 +195,12 @@ class ShiftComponent extends Component {
     const shiftTypes = []
     const { day } = timetracking || {}
     const { shiftTypeId, start, end } = shift
-    const { updatedStart, updatedEnd, ongoingEnd, startShift } = this.state || {}
+    const  {
+      updatedStart,
+      updatedEnd,
+      ongoingEnd,
+      startShift,
+    } = this.state || {}
     const {
       updateShift,
       resumeShift,
