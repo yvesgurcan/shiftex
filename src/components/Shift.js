@@ -70,28 +70,31 @@ class ShiftComponent extends Component {
   }
 
   updateShift = (input, watchTimer) => {
-    
-    const { day } = this.props.timetracking || {}
-    const { shift } = this.props || {}
-    
-    const formattedDay = moment(day).format('YYYY-MM-DD')
-    let state = {...this.state}
+    const { shift, timetracking } = this.props
+    const { day } = timetracking || {}
     let { name, value, resume } = input
-    if (!value && !resume) {
-      this.setState({startShift: false })
-      name = 'updatedEnd'
-      value = moment().format('HH:mm')
-    }
+    const formattedDay = moment(day).format('YYYY-MM-DD')
     
-
     let newValue
-    if (resume) {
-      newValue = null
+    if (name === 'updatedClient' || name === 'updatedProject' || name === 'updatedRole') {
+      newValue = value
     }
     else {
-      newValue = moment(`${formattedDay} ${value}`, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD HH:mm')
+      if (!value && !resume) {
+        this.setState({startShift: false })
+        name = 'updatedEnd'
+        value = moment().format('HH:mm')
+      }
+      else if (resume) {
+        newValue = null
+      }
+      else {
+        newValue = moment(`${formattedDay} ${value}`, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD HH:mm')
+      }
+
     }
 
+    let state = {...this.state}
     state[name] = newValue
     this.setState(state, () => {
       const { updatedEnd } = this.state || {}
@@ -121,8 +124,8 @@ class ShiftComponent extends Component {
   }
 
   resumeShift = () => {
-    const { updateShift, state } = this
-    const { shift } = this.props || {}
+    const { updateShift, firstUpdateActiveTimer, props, state } = this
+    const { shift } = props
     const { start } = shift || {}
     const { updatedStart } = state || {}
     this.setState({startShift: true })
@@ -133,13 +136,13 @@ class ShiftComponent extends Component {
       updateShift({name: 'updatedEnd', value: null, resume: true})
       this.setState({ ongoingEnd: moment() })
       const millisecondsToNextMinute = moment.duration(moment().endOf('minute').diff(moment())).asMilliseconds()
-      this.timeout = setTimeout(this.firstUpdateActiveTimer, millisecondsToNextMinute)  
+      this.timeout = setTimeout(firstUpdateActiveTimer, millisecondsToNextMinute)  
     }
 
   }
 
   deleteShift = () => {
-    const { shift } = this.props || {}
+    const { shift } = this.props
     this.props.dispatch({ type: 'DELETE_SHIFT', shiftId: shift.shiftId})
     apiRequestHandler(
       'delete',
@@ -190,11 +193,16 @@ class ShiftComponent extends Component {
       day
     } = timetracking || {}
     const {
+      client,
+      project,
       role,
       start,
       end,
     } = shift
     const {
+      updatedClient,
+      updatedProject,
+      updatedRole,
       updatedStart,
       updatedEnd,
       ongoingEnd,
@@ -214,23 +222,23 @@ class ShiftComponent extends Component {
     return (
       <View className='shiftGrid'>
         <FormGroup
-          name='client'
+          name='updatedClient'
           placeholder='Enter client name'
-          value={role}
+          value={updatedClient || client}
           onChange={updateShift}
           onPressEnter={updateShift}
         />
         <FormGroup
-          name='project'
+          name='updatedProject'
           placeholder='Enter project'
-          value={role}
+          value={updatedProject || project}
           onChange={updateShift}
           onPressEnter={updateShift}
         />
         <FormGroup
-          name='role'
+          name='updatedRole'
           placeholder='Enter your role'
-          value={role}
+          value={updatedRole || role}
           onChange={updateShift}
           onPressEnter={updateShift}
         />
@@ -268,7 +276,7 @@ class RunningTimer extends Component {
   render () {
     const { start } = this.props
     return (
-      <View className='timerContainer'>
+      <View className='timerContainer desktop'>
         <View className='timer' style={{animation: start && 'fullRotation 5s linear infinite'}}/>
       </View>
     )
