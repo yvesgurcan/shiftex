@@ -20,11 +20,11 @@ const setWindowTitle = (title) => {
 }
 
 class App extends Component {
-  componentWillMount = () => {
+  componentWillMount = (clear) => {
     const { year, month, day } = this.props.match.params
     let start = undefined
     let inputDate = undefined
-    if (year && month && day) {
+    if (!clear && year && month && day) {
       inputDate = moment(`${year}-${month}-${day}`, 'YYYY-MM-DD').format('YYYY-MM-DD')
       start = inputDate
     }
@@ -73,7 +73,7 @@ class App extends Component {
   }
 
   setToToday = () => {
-    this.componentWillMount()
+    this.componentWillMount(true)
   }
 
   render () {
