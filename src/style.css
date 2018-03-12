@@ -116,14 +116,28 @@ button {
     display: block;
   }
 
+  .dailyTotal {
+    text-align: center;
+  }
+
   .shiftNav {
     display: flex;
     justify-content: space-between;
+    align-items: center;
   }
 
   .shiftGrid {
     grid-template-columns: 100%;
     grid-row-gap: 3px;
+    margin-bottom: 10px;
+    padding-top: 7px;
+    border-top: 1px solid gray;
+  }
+
+  .addTimer {
+    display: block;
+    padding-top: 5px;
+    border-top: 1px solid gray;
   }
 
 }

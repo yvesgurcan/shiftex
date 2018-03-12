@@ -89,12 +89,14 @@ class App extends Component {
     return (
       <View>
         <View className='total'>
-            <Text>Total: {dailyTotals ? moment.utc(moment.duration(dailyTotals.map(dailyTotal => dailyTotal.total).reduce((sum, value) => sum + value)) * 60 * 1000).format('HH:mm') : '00:00'} | </Text>
-            <Link onClick={this.setToToday}>Today</Link>
-          </View>   
-        <ShiftNav getShifts={getShifts} />
-        <SectionHeader>{mainHeader}</SectionHeader>
-        <View className='dailyTotal'>{dailyTotals ? moment.utc((dailyTotals.filter(dailyTotal => dailyTotal.day === (moment(day).format('YYYY-MM-DD') || [0]))[0] || {}).total * 60 * 1000).format('HH:mm') : '00:00'}</View>
+          <Text>Total: {dailyTotals ? moment.utc(moment.duration(dailyTotals.map(dailyTotal => dailyTotal.total).reduce((sum, value) => sum + value)) * 60 * 1000).format('HH:mm') : '00:00'} | </Text>
+          <Link onClick={this.setToToday}>Today</Link>
+        </View>
+        <ShiftNav mainHeader={mainHeader} getShifts={getShifts} />
+        <SectionHeader className='desktop'>{mainHeader}</SectionHeader>
+        <View className='dailyTotal'>
+          {dailyTotals ? moment.utc((dailyTotals.filter(dailyTotal => dailyTotal.day === (moment(day).format('YYYY-MM-DD') || [0]))[0] || {}).total * 60 * 1000).format('HH:mm') : '00:00'}
+        </View>
         <ShiftsTable />
       </View>
     )  

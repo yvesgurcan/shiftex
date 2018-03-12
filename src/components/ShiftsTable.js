@@ -87,7 +87,7 @@ class ShiftsTableComponent extends Component {
           )
         }
         </View>
-        <Link onClick={this.addShift}>Add Timer</Link>
+        <Link className='addTimer' onClick={this.addShift}>Add Timer</Link>
       </View>
     )
   }

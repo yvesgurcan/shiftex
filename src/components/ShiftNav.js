@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 import View from './web/View'
 import Link from './web/Link'
+import SectionHeader from './web/SectionHeader'
 
 const mapStateToProps = (state, ownProps) => {
   return {
@@ -64,6 +65,7 @@ class ScheduleWeekNav extends Component {
   }
 
   render () {
+    const { mainHeader } = this.props
     const { day, dailyTotals } = this.props.timetracking || {}
     const { getPreviousWeek, getNextWeek, switchToDay, switchToDayMobile } = this
     const shiftDateFormat = 'dddd'
@@ -78,6 +80,7 @@ class ScheduleWeekNav extends Component {
           &lt;
           </Link>
         </View>
+        <SectionHeader className='mobile'>{mainHeader}</SectionHeader>
         {weekdays.map(weekday => {
             const matchTotal = (dailyTotals || []).filter(total => moment(total.day).isSame(moment(weekday), 'day'))
             let duration = '0:00'
