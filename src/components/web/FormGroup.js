@@ -13,7 +13,6 @@ class FormGroup extends Component {
       checkbox,
       options,
       style,
-      feedback,
     } = this.props || {}
     return (
     <View>

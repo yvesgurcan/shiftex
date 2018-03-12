@@ -39,14 +39,12 @@ class App extends Component {
   }
 
   setUrl = () => {
-    const { review } = this.props || {}
     let start = undefined
     let inputDate = undefined
     if (window.history.pushState) {
       if (!start || inputDate !== start) {
         start = moment()
-        const { routes } = this.props.environment || {}
-        const controller = window.history.pushState('','',`/${moment(start).format('YYYY/M/D')}`)
+        window.history.pushState('','',`/${moment(start).format('YYYY/M/D')}`)
   
       }
       

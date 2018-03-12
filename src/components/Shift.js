@@ -203,7 +203,6 @@ class ShiftComponent extends Component {
 
   render () {
     const { shift, timetracking } = this.props
-    const mobile = false
     const shiftTypes = []
     const { day } = timetracking || {}
     const { shiftTypeId, start, end } = shift

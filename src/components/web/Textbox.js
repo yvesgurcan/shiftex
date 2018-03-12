@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import View from './View'
 
 export default class Textbox extends Component {
   onChange = (input, blurEvent) => {
@@ -61,7 +60,6 @@ export default class Textbox extends Component {
       name,
       type,
       disabled,
-      readOnly,
       value,
       placeholder,
       style,

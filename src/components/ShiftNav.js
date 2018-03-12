@@ -19,18 +19,6 @@ class ScheduleWeekNav extends Component {
     this.switchToDay(7)
   }
 
-  storeShifts = (response) => {
-    if (response.feedback.status === 'success') {
-      if (window.history.pushState) {
-        const { routes } = this.props.environment || {}
-        const controller = routes.schedule.url
-        window.history.pushState('','',`${controller}/${moment(response.weekOf).format('YYYY/M/D')}`);
-        
-      }
-      
-    }
-  }
-
   switchToDay = (weekdayNumber) => {
     const { day } = this.props.timetracking
     const { getShifts } = this.props
@@ -59,7 +47,7 @@ class ScheduleWeekNav extends Component {
     getShifts(newDay)
 
     if (window.history.pushState) {
-      const controller = window.history.pushState('','',`/${moment(newDay).format('YYYY/M/D')}`)
+      window.history.pushState('','',`/${moment(newDay).format('YYYY/M/D')}`)
 
     }
   }
@@ -81,7 +69,6 @@ class ScheduleWeekNav extends Component {
     const { getPreviousWeek, getNextWeek, switchToDay, switchToDayMobile } = this
     const shiftDateFormat = 'dddd'
     const weekdays = this.weekdaysToArray()
-    const mobile = false
     return (
       <View className='shiftNav'>
         <View>

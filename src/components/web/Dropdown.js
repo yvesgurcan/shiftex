@@ -30,7 +30,6 @@ class InternalDropdown extends Component {
     }
   }
   render () {
-    const { styles } = this.props.environment || {}
     const { styleState } = this.state || {}
     const { name, value, style, options, placeholder, disabled, title, readOnly, hidden } = this.props || {}
     if (hidden) {
