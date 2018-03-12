@@ -22,7 +22,7 @@ class ScheduleWeekNav extends Component {
   switchToDay = (weekdayNumber) => {
     const { day } = this.props.timetracking
     const { getShifts } = this.props
-    const newDay = moment(day).startOf('week').add(1, 'day').add(weekdayNumber, 'day')
+    const newDay = moment(day).subtract(weekdayNumber === '5' ? '1' : '0', 'day').startOf('week').add(1, 'day').add(weekdayNumber, 'day')
 
     this.props.dispatch({type: "STORE_SHIFT_DAY", day: moment(newDay).format('YYYY-MM-DD')})
     getShifts(newDay)
@@ -37,7 +37,6 @@ class ScheduleWeekNav extends Component {
   switchToDayMobile = (weekdayNumber, operation) => {
     const { day } = this.props.timetracking
     const { getShifts } = this.props
-    console.log(weekdayNumber)
     let newDay = moment(day).add(
       operation === 'add' && weekdayNumber === '6' ? '-1'
       : operation === 'remove' && weekdayNumber === '0' ? '1'
