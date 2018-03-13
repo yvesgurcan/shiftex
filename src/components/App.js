@@ -75,28 +75,38 @@ class App extends Component {
     this.componentWillMount(true)
   }
 
+  invalidDailyTotal = (dailyTotalIsInvalid) => {
+    this.setState({ dailyTotalIsInvalid })
+  }
+
   render () {
     const {
       getShifts,
+      invalidDailyTotal,
+      props,
+      state,
     } = this
     const {
       timetracking,
-    } = this.props
+    } = props
+    const {
+      dailyTotalIsInvalid,
+    } = state || {}
     let { day, dailyTotals } = timetracking
     const mainHeader = `${moment(day, 'YYYY-MM-DD').format('dddd, MMMM D')}`
     setWindowTitle(mainHeader)
     return (
       <View>
         <View className='total'>
-          <Text>Total: {dailyTotals ? moment.utc(moment.duration(dailyTotals.map(dailyTotal => dailyTotal.total).reduce((sum, value) => sum + value)) * 60 * 1000).format('HH:mm') : '00:00'} | </Text>
+          <Text>Total: {dailyTotalIsInvalid ? '-' : dailyTotals ? moment.utc(moment.duration(dailyTotals.map(dailyTotal => dailyTotal.total).reduce((sum, value) => sum + value)) * 60 * 1000).format('HH:mm') : '00:00'} | </Text>
           <Link onClick={this.setToToday}>Today</Link>
         </View>
-        <ShiftNav mainHeader={mainHeader} getShifts={getShifts} />
+        <ShiftNav mainHeader={mainHeader} getShifts={getShifts} dailyTotalIsInvalid={dailyTotalIsInvalid} />
         <SectionHeader className='desktop'>{mainHeader}</SectionHeader>
         <View className='dailyTotal'>
-          {dailyTotals ? moment.utc((dailyTotals.filter(dailyTotal => dailyTotal.day === (moment(day).format('YYYY-MM-DD') || [0]))[0] || {}).total * 60 * 1000).format('HH:mm') : '00:00'}
+          {dailyTotalIsInvalid ? '-' : dailyTotals ? moment.utc((dailyTotals.filter(dailyTotal => dailyTotal.day === (moment(day).format('YYYY-MM-DD') || [0]))[0] || {}).total * 60 * 1000).format('HH:mm') : '00:00'}
         </View>
-        <ShiftsTable />
+        <ShiftsTable invalidDailyTotal={invalidDailyTotal} />
       </View>
     )  
   }

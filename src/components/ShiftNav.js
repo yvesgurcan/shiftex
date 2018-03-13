@@ -65,8 +65,8 @@ class ScheduleWeekNav extends Component {
   }
 
   render () {
-    const { mainHeader } = this.props
-    const { day, dailyTotals } = this.props.timetracking || {}
+    const { mainHeader, dailyTotalIsInvalid, timetracking } = this.props
+    const { day, dailyTotals } = timetracking || {}
     const { getPreviousWeek, getNextWeek, switchToDay, switchToDayMobile } = this
     const shiftDateFormat = 'dddd'
     const weekdays = this.weekdaysToArray()
@@ -94,7 +94,7 @@ class ScheduleWeekNav extends Component {
               <Link onClick={() => switchToDay(moment(weekday).subtract(1, 'day').format('d')) }>
                 {moment(weekday).format(shiftDateFormat)}
               </Link>
-              <View className={ongoing ? 'ongoingTotal' : null}>{duration}</View>
+              <View className={ongoing ? 'ongoingTotal' : null}>{moment(weekday).isSame(moment(day)) && dailyTotalIsInvalid ? '-' : duration}</View>
             </View> 
             )
           })

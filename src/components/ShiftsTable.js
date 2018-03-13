@@ -60,13 +60,14 @@ class ShiftsTableComponent extends Component {
       this.props.dispatch({
         type: 'STORE_NEW_SHIFT_ID',
         tempShiftId,
-        newShiftId: response.newShiftId,
+        newShiftId: response.shiftId,
       })  
     }
   }
 
   render () {
-    const { shifts } = this.props.timetracking || {}
+    const { invalidDailyTotal, timetracking } = this.props
+    const { shifts } = timetracking || {}
     return (
       <View>
         <View>
@@ -75,6 +76,7 @@ class ShiftsTableComponent extends Component {
             <Shift
               key={shift.shiftId}
               shift={shift}
+              invalidDailyTotal={invalidDailyTotal}
             />
           )
         }

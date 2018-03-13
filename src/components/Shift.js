@@ -70,7 +70,7 @@ class ShiftComponent extends Component {
   }
 
   updateShift = (input, watchTimer) => {
-    const { shift, timetracking } = this.props
+    const { shift, timetracking, invalidDailyTotal } = this.props
     const { day } = timetracking || {}
     let { name, value, resume } = input
     const formattedDay = moment(day).format('YYYY-MM-DD')
@@ -83,7 +83,7 @@ class ShiftComponent extends Component {
       if (!value && !resume) {
         this.setState({startShift: false })
         name = 'updatedEnd'
-        value = moment().format('HH:mm')
+        newValue = moment(day).hours(moment().format('HH')).minutes(moment().format('mm')).format('YYYY-MM-DD HH:mm')
       }
       else if (resume) {
         newValue = null
@@ -97,7 +97,7 @@ class ShiftComponent extends Component {
     let state = {...this.state}
     state[name] = newValue
     this.setState(state, () => {
-      const { updatedEnd } = this.state || {}
+      const { updatedEnd, updatedStart } = this.state || {}
       this.calcDiff(updatedEnd)
       let key = name.replace('updated','')
       key = key[0].toLowerCase() + key.substring(1)
@@ -113,12 +113,30 @@ class ShiftComponent extends Component {
           start: state.updatedStart,
         }
       }
+      else {
+        let diff
+        if (name === 'updatedEnd') {
+          diff = moment.duration(moment(newValue).diff(moment(updatedStart || shift.start)))
+          invalidDailyTotal(true)
+        }
+        else if (name === 'updatedStart') {
+          diff = moment.duration(moment(updatedEnd || shift.end).diff(moment(newValue)))
+          invalidDailyTotal(true)
+        }
 
-      apiRequestHandler(
-        'put',
-        'shifts',
-        { updateShift },
-      )
+        if (diff >= 0) {
+          this.props.dispatch({ type: 'UPDATE_SHIFT', shiftId: shift.shiftId, name: key, value: newValue})
+          invalidDailyTotal(false)
+          apiRequestHandler(
+            'put',
+            'shifts',
+            { updateShift },
+          )
+        }
+
+      }
+
+
     })
 
   }
