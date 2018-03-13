@@ -30,7 +30,7 @@ function timetracking (state = {}, action) {
     case 'ADD_SHIFT': {
       const day = moment(state.day)
       const updatedShifts = [...state.shifts, {
-        shiftId: 'newShift',
+        shiftId: action.tempShiftId,
         day: day.format('YYYY-MM-DD'),
         start: action.start,
         end: action.end,
