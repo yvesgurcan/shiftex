@@ -38,6 +38,18 @@ function timetracking (state = {}, action) {
       newState = {
         ...state,
         shifts: updatedShifts,
+        dailyTotals: state.dailyTotals.map(dailyTotal => {
+          let augmentedDailyTotal = {...dailyTotal}
+          if (dailyTotal.day === state.day) {
+            augmentedDailyTotal = {
+              ...augmentedDailyTotal,
+              ongoing: moment().isSame(dailyTotal.day, 'day') ? true : dailyTotal.ongoing,
+              ongoingCount: moment().isSame(dailyTotal.day, 'day') ? (dailyTotal.ongoingCount || 0) + 1 : dailyTotal.ongoingCount,
+            }
+          }
+          return augmentedDailyTotal
+          
+        })
       }
       break
     }
@@ -62,7 +74,7 @@ function timetracking (state = {}, action) {
 
     case 'UPDATE_SHIFT': {
       let shifts = [...state.shifts]
-      if (action.name && action.value) {
+      if (action.name) {
         shifts = [...state.shifts].map(shift => {
           let augmentedShift = {...shift}
           if (shift.shiftId === action.shiftId) {
@@ -73,22 +85,42 @@ function timetracking (state = {}, action) {
           }
           
           return augmentedShift
-        })  
+        })
+
       }
 
       const dailyTotals = [...state.dailyTotals].map(dailyTotal => {
         let recalculatedDailyTotal = {...dailyTotal}
         if (dailyTotal.day === state.day) {
+          let ongoing = dailyTotal.ongoing
+          let ongoingCount = dailyTotal.ongoingCount || 0
+          if (!action.value) {
+            ongoing = true
+            ongoingCount += 1
+          }
+          else if (action.name === 'end') {
+            ongoingCount -= 1
+          }
+
+          if (!ongoingCount) {
+            ongoing = false
+          }
+
+          ongoing: ongoing || dailyTotal.ongoing 
           recalculatedDailyTotal = {
             ...recalculatedDailyTotal,
+            ongoing,
+            ongoingCount,
             total: [...shifts].map(shift => {
               if (!shift.end) {
                 return moment.duration(moment().diff(moment(shift.start))).asMinutes()
               }
+
               return moment.duration(moment(shift.end).diff(moment(shift.start))).asMinutes()
             }).reduce((sum, value) => sum + value),
           }
         }
+
         return recalculatedDailyTotal
       })
 
@@ -102,6 +134,7 @@ function timetracking (state = {}, action) {
     }
 
     case 'DELETE_SHIFT': {
+      // TODO: update ongoing and ongoingCount
       const shifts = [...state.shifts].filter(shift => shift.shiftId !== action.shiftId)
       newState = {
         ...state,
