@@ -135,10 +135,12 @@ endpointWrapper(
     let dailyTotals = []
     for (let i = 0; i < 7; i++) {
       let ongoing = false
+      let ongoingCount = 0
       const day = moment(weekOf).add(i, 'days')
       const shiftDurations = weekShifts.filter(shift => !shift.deleted && moment(shift.start).isSame(day, 'day')).map(shift => {
         if (!shift.end) {
           ongoing = true
+          ongoingCount += 1
           if (moment(day).isSame(moment(), 'day')) {
             return moment.duration(moment().diff(moment(shift.start))).asMinutes()
           }
@@ -158,6 +160,7 @@ endpointWrapper(
         day: moment(day).format('YYYY-MM-DD'),
         total,
         ongoing,
+        ongoingCount,
       })
 
     }

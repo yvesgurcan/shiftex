@@ -14,11 +14,11 @@ const mapStateToProps = (state, ownProps) => {
 
 class ShiftsTableComponent extends Component {
   addShift = () => {
-    const { getNewShiftTime } = this
-    const { day } = this.props.timetracking || {}
+    const { getNewShiftTime, props } = this
+    const { day } = props.timetracking || {}
     const tempShiftId = 'newShift' + Math.random()
     const start = getNewShiftTime()
-    const end = getNewShiftTime(true)
+    const end = getNewShiftTime(moment().isSame(moment(day), 'day'))
     this.props.dispatch({
       type: 'ADD_SHIFT',
       tempShiftId,

@@ -30,13 +30,11 @@ class ShiftComponent extends Component {
   }
 
   firstUpdateActiveTimer = () => {
-    console.log('firstUpdateActiveTimer')
     this.updateActiveTimer()
     this.interval = setInterval(this.updateActiveTimer, 60000)
   }
 
   updateActiveTimer = () => {
-    console.log('updateActiveTimer')
     if (this.mounted) {
       let ongoingEnd = moment()
       this.setState({ ongoingEnd })
@@ -74,18 +72,20 @@ class ShiftComponent extends Component {
     const { day } = timetracking || {}
     let { name, value, resume } = input
     const formattedDay = moment(day).format('YYYY-MM-DD')
-    
+
     let newValue
+    let state = {...this.state}
     if (name === 'updatedClient' || name === 'updatedProject' || name === 'updatedRole') {
       newValue = value
     }
     else {
       if (!value && !resume) {
-        this.setState({startShift: false })
+        state.startShift = false
         name = 'updatedEnd'
         newValue = moment(day).hours(moment().format('HH')).minutes(moment().format('mm')).format('YYYY-MM-DD HH:mm')
       }
       else if (resume) {
+        name = 'updatedEnd'
         newValue = null
       }
       else {
@@ -94,7 +94,6 @@ class ShiftComponent extends Component {
 
     }
 
-    let state = {...this.state}
     state[name] = newValue
     this.setState(state, () => {
       const { updatedEnd, updatedStart } = this.state || {}
@@ -116,15 +115,13 @@ class ShiftComponent extends Component {
       else {
         let diff
         if (name === 'updatedEnd') {
-          diff = moment.duration(moment(newValue).diff(moment(updatedStart || shift.start)))
-          invalidDailyTotal(true)
+          diff = moment.duration(moment(newValue).diff(moment(updatedStart || shift.start))).asMilliseconds()
         }
         else if (name === 'updatedStart') {
-          diff = moment.duration(moment(updatedEnd || shift.end).diff(moment(newValue)))
-          invalidDailyTotal(true)
+          diff = moment.duration(moment(updatedEnd || shift.end).diff(moment(newValue))).asMilliseconds()
         }
 
-        if (diff >= 0) {
+        if (resume || diff >= 0 || (name !== 'updatedStart' && name !== 'updatedEnd')) {
           this.props.dispatch({ type: 'UPDATE_SHIFT', shiftId: shift.shiftId, name: key, value: newValue})
           invalidDailyTotal(false)
           apiRequestHandler(
@@ -132,6 +129,9 @@ class ShiftComponent extends Component {
             'shifts',
             { updateShift },
           )
+        }
+        else if (newValue) {
+          invalidDailyTotal(true)
         }
 
       }
@@ -152,7 +152,7 @@ class ShiftComponent extends Component {
     }
     else {
       updateShift({name: 'updatedEnd', value: null, resume: true})
-      this.setState({ ongoingEnd: moment() })
+      this.setState({ ongoingEnd: moment(), startShift: true })
       const millisecondsToNextMinute = moment.duration(moment().endOf('minute').diff(moment())).asMilliseconds()
       this.timeout = setTimeout(firstUpdateActiveTimer, millisecondsToNextMinute)  
     }
