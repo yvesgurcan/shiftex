@@ -35,6 +35,7 @@ class App extends Component {
 
     this.props.dispatch({type: "STORE_SHIFT_DAY", day: start})
     this.getShifts(start)
+    this.setState({ dailyTotalIsInvalid: false })
 
   }
 
@@ -101,7 +102,7 @@ class App extends Component {
           <Text>Total: {dailyTotalIsInvalid ? '-' : dailyTotals ? moment.utc(moment.duration(dailyTotals.map(dailyTotal => dailyTotal.total).reduce((sum, value) => sum + value)) * 60 * 1000).format('HH:mm') : '00:00'} | </Text>
           <Link onClick={this.setToToday}>Today</Link>
         </View>
-        <ShiftNav mainHeader={mainHeader} getShifts={getShifts} dailyTotalIsInvalid={dailyTotalIsInvalid} />
+        <ShiftNav mainHeader={mainHeader} getShifts={getShifts} dailyTotalIsInvalid={dailyTotalIsInvalid} invalidDailyTotal={invalidDailyTotal} />
         <SectionHeader className='desktop'>{mainHeader}</SectionHeader>
         <View className='dailyTotal'>
           {dailyTotalIsInvalid ? '-' : dailyTotals ? moment.utc((dailyTotals.filter(dailyTotal => dailyTotal.day === (moment(day).format('YYYY-MM-DD') || [0]))[0] || {}).total * 60 * 1000).format('HH:mm') : '00:00'}
