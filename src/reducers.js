@@ -106,7 +106,7 @@ function timetracking (state = {}, action) {
             ongoing = false
           }
 
-          ongoing = ongoing || dailyTotal.ongoing 
+           
           recalculatedDailyTotal = {
             ...recalculatedDailyTotal,
             ongoing,
