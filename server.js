@@ -185,8 +185,6 @@ endpointWrapper(
 
     global.shifts = [...global.shifts, newShift]
 
-    console.log(newShift)
-
     return { shiftId, feedback: { status: 'success'} }
 
   }
