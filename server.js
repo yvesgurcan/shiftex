@@ -2,21 +2,26 @@ const express = require('express')
 const server = express()
 const bodyParser = require('body-parser')
 const moment = require('moment')
+const MongoClient = require('mongodb').MongoClient;
+const assert = require('assert');
 
 // note: nested objects in GET/DELETE queries are stringified. use JSON.parse() to convert them back to objects.
 server.use(bodyParser.json({extended: true}))
 server.use(bodyParser.urlencoded({extended: true}))
 
-// config
-// global (default), mongo
-const database = 'mongo'
+// api config
 const port = 5000
 const supportedMethods = ['get','post','put','delete']
 const requireAuth = true
+// database config
+// must be one of: global (default), mongo
+const database = 'mongo'
+const url = 'mongodb://localhost:27017'
+const name = 'myproject'
 
-// you can create a mock database in the form of a JSON object here
 switch (database) {
   default:
+  // you can create a mock database in the form of a JSON object here
   case 'global': {
     let shiftId = 0
     global = {
@@ -70,6 +75,16 @@ switch (database) {
     }
     break
   }
+  case 'mongo': {
+    MongoClient.connect(url, function(err, client) {
+      assert.equal(null, err)
+      console.log(`Database ${name} connected successfully to server at ${url}.`);
+      const db = client.db(name)
+    
+      client.close()
+    })
+  }
+
 }
 
 // use endpointWrapper to create a quick mock endpoint
@@ -124,6 +139,33 @@ endpointWrapper(
       case 'global': {
         shifts = global.shifts.filter(shift => !shift.deleted && moment(shift.start).isAfter(moment(parameters.day).startOf('day')) && moment(shift.start).isBefore(moment(parameters.day).endOf('day'))).sort((a, b) => moment(a.start).isAfter(moment(b.start)) ? 1 : moment(a.start).isBefore(moment(b.start)) ? -1 : 0)
         break
+      }
+      case 'mongo': {
+        // TODO (this is taken from https://www.npmjs.com/package/mongodb#insert-a-document)
+        const insertDocuments = function(db, callback) {
+          // Get the documents collection
+          const collection = db.collection('documents');
+          // Insert some documents
+          collection.insertMany([
+            {a : 1}, {a : 2}, {a : 3}
+          ], function(err, result) {
+            assert.equal(err, null);
+            assert.equal(3, result.result.n);
+            assert.equal(3, result.ops.length);
+            console.log("Inserted 3 documents into the collection");
+            callback(result);
+          });
+        }
+
+        MongoClient.connect(url, function(err, client) {
+          assert.equal(null, err)
+          console.log(`Database ${name} connected successfully to server at ${url}.`);
+          const db = client.db(name)
+        
+          insertDocuments(db, function() {
+            client.close();
+          });
+        })
       }
     }
 
