@@ -41,6 +41,8 @@ This app would benefit from the following features:
 * export to .csv functionality
 * send functionality to submit the timesheet to a predefined email address
 * user settings to allow customization of the app
+* write tests for front-end and back-end
+* refactor
 
 # get in touch
 
