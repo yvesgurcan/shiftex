@@ -29,7 +29,7 @@ function timetracking (state = {}, action) {
 
     case 'ADD_SHIFT': {
       const day = moment(state.day)
-      const updatedShifts = [...state.shifts, {
+      const updatedShifts = [...state.shifts || [], {
         shiftId: action.tempShiftId,
         day: day.format('YYYY-MM-DD'),
         start: action.start,
@@ -38,7 +38,7 @@ function timetracking (state = {}, action) {
       newState = {
         ...state,
         shifts: updatedShifts,
-        dailyTotals: state.dailyTotals.map(dailyTotal => {
+        dailyTotals: state.dailyTotals && state.dailyTotals.map(dailyTotal => {
           let augmentedDailyTotal = {...dailyTotal}
           if (dailyTotal.day === state.day) {
             augmentedDailyTotal = {
