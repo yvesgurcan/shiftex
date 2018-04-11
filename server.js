@@ -2,7 +2,7 @@ const express = require('express')
 const server = express()
 const bodyParser = require('body-parser')
 const moment = require('moment')
-const MongoClient = require('mongodb').MongoClient;
+const mongo = require('mongodb').MongoClient;
 const assert = require('assert');
 
 // note: nested objects in GET/DELETE queries are stringified. use JSON.parse() to convert them back to objects.
@@ -15,7 +15,7 @@ const supportedMethods = ['get','post','put','delete']
 const requireAuth = true
 // database config
 // must be one of: global (default), mongo
-const database = 'mongo'
+const database = 'global'
 const url = 'mongodb://localhost:27017'
 const name = 'myproject'
 
@@ -76,11 +76,10 @@ switch (database) {
     break
   }
   case 'mongo': {
-    MongoClient.connect(url, function(err, client) {
+    mongo.connect(url, function(err, client) {
       assert.equal(null, err)
       console.log(`Database ${name} connected successfully to server at ${url}.`);
       const db = client.db(name)
-    
       client.close()
     })
   }
@@ -133,7 +132,7 @@ endpointWrapper(
   '/shifts',
   (req, res, parameters) => {
 
-    let shifts
+    let shifts = []
     switch (database) {
       default:
       case 'global': {
@@ -141,31 +140,15 @@ endpointWrapper(
         break
       }
       case 'mongo': {
-        // TODO (this is taken from https://www.npmjs.com/package/mongodb#insert-a-document)
-        const insertDocuments = function(db, callback) {
-          // Get the documents collection
-          const collection = db.collection('documents');
-          // Insert some documents
-          collection.insertMany([
-            {a : 1}, {a : 2}, {a : 3}
-          ], function(err, result) {
-            assert.equal(err, null);
-            assert.equal(3, result.result.n);
-            assert.equal(3, result.ops.length);
-            console.log("Inserted 3 documents into the collection");
-            callback(result);
-          });
-        }
-
-        MongoClient.connect(url, function(err, client) {
-          assert.equal(null, err)
-          console.log(`Database ${name} connected successfully to server at ${url}.`);
+        mongo.connect(url, async function(err, client) {
           const db = client.db(name)
-        
-          insertDocuments(db, function() {
-            client.close();
-          });
+          shifts = await db.collection('shifts').find({ 
+            start: { $gt: moment(parameters.day).startOf('day').format('YYYY-MM-DD')},
+            end: { $lt: moment(parameters.day).endOf('day').format('YYYY-MM-DD')}, 
+          }).toArray()
+          client.close()
         })
+        break
       }
     }
 
@@ -177,25 +160,12 @@ endpointWrapper(
       weekOf = moment(parameters.day).startOf('week').add(1, 'day').format('YYYY-MM-DD')
     }
 
-    // get shifts of the week
-    let weekShifts
-    switch (database) {
-      default:
-      case 'global': {
-        weekShifts = global.shifts.filter(shift => {
-          const isAfter = moment(shift.day).isAfter(moment(weekOf)) || moment(shift.day).isSame(moment(weekOf), 'day')
-          const isBefore = moment(shift.day).isBefore(moment(weekOf).add(7, 'days')) || moment(shift.day).isSame(moment(weekOf).add(7, 'days'), 'day')
-          return !shift.deleted && isAfter && isBefore
-        })
-      }
-    }
-
     let dailyTotals = []
     for (let i = 0; i < 7; i++) {
       let ongoing = false
       let ongoingCount = 0
       const day = moment(weekOf).add(i, 'days')
-      const shiftDurations = weekShifts.filter(shift => !shift.deleted && moment(shift.start).isSame(day, 'day')).map(shift => {
+      const shiftDurations = shifts.filter(shift => !shift.deleted && moment(shift.start).isSame(day, 'day')).map(shift => {
         if (!shift.end) {
           ongoing = true
           ongoingCount += 1
@@ -232,16 +202,44 @@ endpointWrapper(
   '/shifts',
   (req, res, parameters) => {
 
-    const shiftId = global.shifts.length + 1
-
-    const newShift = {
-      shiftId,
+    let shiftId = null
+    let newShift = {
       day: parameters.day,
       start: parameters.start,
       end: parameters.end,
     }
 
-    global.shifts = [...global.shifts, newShift]
+    switch (database) {
+      default:
+      case 'global': {
+        shiftId = global.shifts.length + 1
+        newShift = {
+          ...newShift,
+          shiftId,
+        }
+        global.shifts = [...global.shifts, newShift]
+        break
+      }
+      case 'mongo': {
+        const updateDatabase = async function(db, callback) {
+          const shifts = db.collection('shifts')
+          shifts.insertOne(newShift, async function(err, result) {
+            callback(newShift._id)
+          })
+        }
+        mongo.connect(url, async function(err, client) {
+          const db = client.db(name)
+          // FIXME this is inserting, but does not return shiftId :(
+          shiftId = await updateDatabase(db, function(result) {
+            console.log(result)
+            client.close()
+            return result
+          })
+          console.log('latest', shiftId)
+        })
+        break
+      }
+    }
 
     return { shiftId, feedback: { status: 'success'} }
 
@@ -253,8 +251,23 @@ endpointWrapper(
   '/shifts',
   (req, res, parameters) => {
 
-   // get shift
-    const shift = global.shifts.filter(shift => !shift.deleted && shift.shiftId === parameters.updateShift.shiftId)
+    // TODO (this is taken from https://www.npmjs.com/package/mongodb#insert-a-document)
+    const updateDatabase = function(db, callback) {
+      // Get the documents collection
+      const collection = db.collection('documents');
+      // Insert some documents
+      collection.insertMany([
+        {a : 1}, {a : 2}, {a : 3}
+      ], function(err, result) {
+        assert.equal(err, null);
+        assert.equal(3, result.result.n);
+        assert.equal(3, result.ops.length);
+        console.log("Inserted 3 documents into the collection");
+        callback(result);
+      });
+    }
+
+    const shift = (global.shifts || []).filter(shift => !shift.deleted && shift.shiftId === parameters.updateShift.shiftId)
 
     if (shift.length === 0) {
     return { feedback: { status: 'error', message: 'The shift could not be found.' } }
