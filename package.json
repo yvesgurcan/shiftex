@@ -23,6 +23,6 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "prop-types": "^15.6.1"
+    "prop-types": "^15.7.2"
   }
 }
